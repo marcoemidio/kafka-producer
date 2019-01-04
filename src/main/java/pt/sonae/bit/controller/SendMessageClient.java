@@ -1,20 +1,17 @@
 package pt.sonae.bit.controller;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import pt.sonae.bit.beans.WelcomeMessage;
+import pt.sonae.bit.kafka.producer.KafkaProducer;
 
 @RestController
 public class SendMessageClient {
@@ -22,23 +19,20 @@ public class SendMessageClient {
 	private static final Logger log = LoggerFactory.getLogger(SendMessageClient.class);
 	
 	@Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
-	
-	@Value("${kafka.topic}")
-    private String topic;
+    private KafkaProducer producer;
 	
 	private static final String welcomemsg = "Welcome Mr. %s!";
 	
-	@RequestMapping(value="/welcome/user/{name}", method = RequestMethod.POST)
-	public String welcomeMessage(@PathVariable String name) throws IOException {
+	@RequestMapping(value="/welcome/user/{name}", method = RequestMethod.GET)
+	public WelcomeMessage welcomeMessage(@PathVariable String name) throws IOException {
 		
 		String message = String.format(welcomemsg, name);
 		
-		log.info("sending message='{}' to topic='{}'", message, topic);
+		log.info("GET request with name='{}'", name);
 		
-		kafkaTemplate.send(topic, message);
+		producer.send(message);
 		
-		return "message sent";
+		return new WelcomeMessage(String.format(welcomemsg, name));
 		
 	}	
 	
