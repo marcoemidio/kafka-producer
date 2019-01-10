@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import pt.sonae.bit.beans.WelcomeMessage;
 import pt.sonae.bit.kafka.producer.KafkaProducer;
 
+/**
+ * @author Marco Emidio
+ */
 @RestController
 public class SendMessageClient {
 	
@@ -30,7 +33,7 @@ public class SendMessageClient {
 		
 		log.info("GET request with name='{}'", name);
 		
-		producer.send(message);
+		producer.sendRequest(message);
 		
 		return new WelcomeMessage(String.format(welcomemsg, name));
 		
